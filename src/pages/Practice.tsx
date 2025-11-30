@@ -6,13 +6,20 @@ import { useProgress } from '../context/ProgressContext';
 
 export const Practice: React.FC = () => {
     const { currentTeam } = useTheme();
-    const { addPoints, updateAccuracy } = useProgress();
+    const { addPoints, updateAccuracy, markPracticeProblemComplete, isPracticeProblemComplete } = useProgress();
     const [activeDifficulty, setActiveDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [results, setResults] = useState<Record<string, 'correct' | 'incorrect' | null>>({});
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
     const filteredProblems = practiceProblems.filter(p => p.difficulty === activeDifficulty);
+
+    // Calculate progress for each difficulty
+    const getProgressForDifficulty = (difficulty: 'easy' | 'medium' | 'hard') => {
+        const problems = practiceProblems.filter(p => p.difficulty === difficulty);
+        const completed = problems.filter(p => isPracticeProblemComplete(p.id)).length;
+        return { total: problems.length, completed };
+    };
 
     const checkAnswer = (problem: Problem) => {
         const userAnswer = answers[problem.id]?.trim().replace(',', '.');
@@ -26,7 +33,10 @@ export const Practice: React.FC = () => {
         if (results[problem.id] === undefined) {
             // Only update stats on first attempt
             updateAccuracy(isCorrect);
-            if (isCorrect) addPoints(3);
+            if (isCorrect) {
+                addPoints(3);
+                markPracticeProblemComplete(problem.id);
+            }
         }
 
         setResults(prev => ({ ...prev, [problem.id]: isCorrect ? 'correct' : 'incorrect' }));
@@ -45,18 +55,24 @@ export const Practice: React.FC = () => {
                 <h1 className="text-3xl font-bold">Trening</h1>
 
                 <div className="flex bg-[var(--color-surface)] p-1 rounded-lg border border-white/10">
-                    {(['easy', 'medium', 'hard'] as const).map((diff) => (
-                        <button
-                            key={diff}
-                            onClick={() => setActiveDifficulty(diff)}
-                            className={`px-4 py-2 rounded-md capitalize transition-all ${activeDifficulty === diff
-                                ? 'bg-[var(--color-primary)] text-white shadow-lg'
-                                : 'text-[var(--color-text-muted)] hover:text-white'
-                                }`}
-                        >
-                            {diff === 'easy' ? 'Rozgrzewka' : diff === 'medium' ? 'Mecz' : 'Liga Mistrzów'}
-                        </button>
-                    ))}
+                    {(['easy', 'medium', 'hard'] as const).map((diff) => {
+                        const progress = getProgressForDifficulty(diff);
+                        return (
+                            <button
+                                key={diff}
+                                onClick={() => setActiveDifficulty(diff)}
+                                className={`px-4 py-2 rounded-md capitalize transition-all ${activeDifficulty === diff
+                                    ? 'bg-[var(--color-primary)] text-white shadow-lg'
+                                    : 'text-[var(--color-text-muted)] hover:text-white'
+                                    }`}
+                            >
+                                <div>{diff === 'easy' ? 'Rozgrzewka' : diff === 'medium' ? 'Mecz' : 'Liga Mistrzów'}</div>
+                                <div className="text-xs opacity-75">
+                                    {progress.completed}/{progress.total}
+                                </div>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -64,15 +80,23 @@ export const Practice: React.FC = () => {
                 {filteredProblems.map((problem) => {
                     const result = results[problem.id];
                     const isExpanded = expanded[problem.id];
+                    const isCompleted = isPracticeProblemComplete(problem.id);
 
                     return (
-                        <div key={problem.id} className="card p-0 overflow-hidden border-l-4 border-l-[var(--color-accent)]">
+                        <div key={problem.id} className={`card p-0 overflow-hidden border-l-4 ${isCompleted ? 'border-l-green-500' : 'border-l-[var(--color-accent)]'}`}>
                             <div className="p-6">
                                 <div className="flex justify-between items-start gap-4 mb-4">
-                                    <div>
-                                        <span className="inline-block px-2 py-1 text-xs font-bold uppercase tracking-wider bg-white/10 rounded mb-2 text-[var(--color-text-muted)]">
-                                            {problem.team}
-                                        </span>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="inline-block px-2 py-1 text-xs font-bold uppercase tracking-wider bg-white/10 rounded text-[var(--color-text-muted)]">
+                                                {problem.team}
+                                            </span>
+                                            {isCompleted && (
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-bold uppercase tracking-wider bg-green-500/20 text-green-400 rounded">
+                                                    <CheckCircle size={12} /> Ukończono
+                                                </span>
+                                            )}
+                                        </div>
                                         <h3 className="text-lg font-medium">{problem.question}</h3>
                                     </div>
                                     {result === 'correct' && <CheckCircle className="text-green-500 shrink-0" />}
@@ -92,7 +116,10 @@ export const Practice: React.FC = () => {
 
                                                     if (results[problem.id] === undefined) {
                                                         updateAccuracy(isCorrect);
-                                                        if (isCorrect) addPoints(3);
+                                                        if (isCorrect) {
+                                                            addPoints(3);
+                                                            markPracticeProblemComplete(problem.id);
+                                                        }
                                                     }
 
                                                     setResults(prev => ({ ...prev, [problem.id]: isCorrect ? 'correct' : 'incorrect' }));

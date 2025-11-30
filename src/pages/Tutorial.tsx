@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { tutorialSteps } from '../data/curriculum';
 import { ChevronRight, ChevronLeft, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { useProgress } from '../context/ProgressContext';
 
 export const Tutorial: React.FC = () => {
+    const { markTutorialStepComplete, isTutorialStepComplete } = useProgress();
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [practiceAnswers, setPracticeAnswers] = useState<Record<string, number | null>>({});
     const [showExplanation, setShowExplanation] = useState<Record<string, boolean>>({});
@@ -17,6 +19,19 @@ export const Tutorial: React.FC = () => {
         setShowExplanation(prev => ({ ...prev, [key]: true }));
     };
 
+    // Check if all practice questions are answered correctly and mark step as complete
+    useEffect(() => {
+        const allAnswered = step.practice.every((q, qIdx) => {
+            const key = `${step.id}-${qIdx}`;
+            const selected = practiceAnswers[key];
+            return selected === q.correctIndex;
+        });
+
+        if (allAnswered && !isTutorialStepComplete(step.id)) {
+            markTutorialStepComplete(step.id);
+        }
+    }, [practiceAnswers, step, markTutorialStepComplete, isTutorialStepComplete]);
+
     const nextStep = () => {
         if (!isLastStep) setCurrentStepIndex(prev => prev + 1);
     };
@@ -27,6 +42,37 @@ export const Tutorial: React.FC = () => {
 
     return (
         <div className="max-w-3xl mx-auto">
+            {/* Step Progress Indicator */}
+            <div className="mb-8">
+                <div className="flex items-center justify-between gap-2">
+                    {tutorialSteps.map((s, idx) => {
+                        const isComplete = isTutorialStepComplete(s.id);
+                        const isCurrent = idx === currentStepIndex;
+
+                        return (
+                            <div key={s.id} className="flex-1 flex items-center">
+                                <div className="flex flex-col items-center flex-1">
+                                    <div className={`
+                                        w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm
+                                        ${isCurrent ? 'bg-[var(--color-primary)] text-white ring-4 ring-[var(--color-primary)]/30' : ''}
+                                        ${isComplete && !isCurrent ? 'bg-green-500 text-white' : ''}
+                                        ${!isComplete && !isCurrent ? 'bg-white/10 text-[var(--color-text-muted)]' : ''}
+                                    `}>
+                                        {isComplete ? '✓' : idx + 1}
+                                    </div>
+                                    <div className={`text-xs mt-2 text-center ${isCurrent ? 'font-bold' : 'text-[var(--color-text-muted)]'}`}>
+                                        {s.title.split(' ').slice(0, 2).join(' ')}
+                                    </div>
+                                </div>
+                                {idx < tutorialSteps.length - 1 && (
+                                    <div className={`h-0.5 flex-1 ${isComplete ? 'bg-green-500' : 'bg-white/10'}`} />
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                     <span className="bg-[var(--color-primary)] text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">
@@ -36,6 +82,9 @@ export const Tutorial: React.FC = () => {
                 </h1>
                 <div className="text-sm text-[var(--color-text-muted)]">
                     Krok {currentStepIndex + 1} z {tutorialSteps.length}
+                    {isTutorialStepComplete(step.id) && (
+                        <span className="ml-2 text-green-500">✓ Ukończono</span>
+                    )}
                 </div>
             </div>
 
