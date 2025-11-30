@@ -1,77 +1,115 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { Team } from '../data/curriculum';
-import { Trophy, BookOpen, PenTool, LayoutDashboard } from 'lucide-react';
+import { Trophy, BookOpen, PenTool, Home as HomeIcon } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { currentTeam, setTeam } = useTheme();
-    const location = useLocation();
+  const { currentTeam, setTeam } = useTheme();
+  const location = useLocation();
 
-    const teams: Team[] = ['Barcelona', 'Arsenal', 'Legia'];
+  const teams: Team[] = ['Barcelona', 'Arsenal', 'Legia'];
 
-    const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path;
 
-    return (
-        <div className="min-h-screen flex flex-col w-full">
-            <header className="p-4 border-b border-white/10 bg-[var(--color-surface)] sticky top-0 z-10">
-                <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-                    <Link to="/" className="text-2xl font-bold flex items-center gap-2 text-[var(--color-primary)]">
-                        <Trophy className="w-8 h-8" />
-                        <span>Procenty</span>
-                    </Link>
+  const getBackgroundImage = () => {
+    switch (currentTeam) {
+      case 'Barcelona':
+        return '/assets/bg-barcelona.png';
+      case 'Arsenal':
+        return '/assets/bg-arsenal.png';
+      case 'Legia':
+        return '/assets/bg-legia.png';
+      default:
+        return '/assets/bg-barcelona.png';
+    }
+  };
 
-                    <nav className="flex items-center gap-2 bg-black/20 p-1 rounded-lg">
-                        <Link
-                            to="/"
-                            className={`px-3 py-2 rounded-md transition-colors ${isActive('/') ? 'bg-[var(--color-primary)] text-white' : 'hover:bg-white/5'}`}
-                        >
-                            <LayoutDashboard size={20} />
-                        </Link>
-                        <Link
-                            to="/tutorial"
-                            className={`px-3 py-2 rounded-md transition-colors ${isActive('/tutorial') ? 'bg-[var(--color-primary)] text-white' : 'hover:bg-white/5'}`}
-                        >
-                            <BookOpen size={20} />
-                        </Link>
-                        <Link
-                            to="/practice"
-                            className={`px-3 py-2 rounded-md transition-colors ${isActive('/practice') ? 'bg-[var(--color-primary)] text-white' : 'hover:bg-white/5'}`}
-                        >
-                            <PenTool size={20} />
-                        </Link>
-                        <Link
-                            to="/test"
-                            className={`px-3 py-2 rounded-md transition-colors ${isActive('/test') ? 'bg-[var(--color-primary)] text-white' : 'hover:bg-white/5'}`}
-                        >
-                            <Trophy size={20} />
-                        </Link>
-                    </nav>
+  return (
+    <div className="min-h-screen flex flex-col w-full relative">
+      {/* Background Image */}
+      <div 
+        className="bg-overlay"
+        style={{ backgroundImage: `url(${getBackgroundImage()})` }}
+      />
 
-                    <div className="flex gap-2">
-                        {teams.map(team => (
-                            <button
-                                key={team}
-                                onClick={() => setTeam(team)}
-                                className={`px-3 py-1 text-xs rounded-full border transition-all ${currentTeam === team
-                                        ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white'
-                                        : 'bg-transparent border-white/20 hover:border-white/50'
-                                    }`}
-                            >
-                                {team}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </header>
-
-            <main className="flex-1 w-full max-w-5xl mx-auto p-4">
-                {children}
-            </main>
-
-            <footer className="p-4 text-center text-sm text-[var(--color-text-muted)]">
-                <p>Matematyka dla Kibica • Klasa 7</p>
-            </footer>
+      {/* Header */}
+      <header className="p-4 border-b border-white/10 glass-dark sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <Link to="/" className="text-2xl font-bold flex items-center gap-2 text-[var(--color-primary)]">
+            <Trophy className="w-8 h-8" />
+            <span>Procenty</span>
+          </Link>
+          
+          <div className="flex gap-2">
+            {teams.map(team => (
+              <button
+                key={team}
+                onClick={() => setTeam(team)}
+                className={`px-3 py-1 text-xs rounded-full border transition-all ${
+                  currentTeam === team 
+                    ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg' 
+                    : 'bg-transparent border-white/20 hover:border-white/50'
+                }`}
+              >
+                {team}
+              </button>
+            ))}
+          </div>
         </div>
-    );
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 w-full max-w-5xl mx-auto p-4 pb-24 md:pb-4">
+        {children}
+      </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 md:hidden z-20">
+        <div className="flex justify-around items-center h-16 max-w-5xl mx-auto">
+          <Link 
+            to="/" 
+            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+              isActive('/') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
+            }`}
+          >
+            <HomeIcon size={24} />
+            <span className="text-xs">Główna</span>
+          </Link>
+          <Link 
+            to="/tutorial" 
+            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+              isActive('/tutorial') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
+            }`}
+          >
+            <BookOpen size={24} />
+            <span className="text-xs">Nauka</span>
+          </Link>
+          <Link 
+            to="/practice" 
+            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+              isActive('/practice') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
+            }`}
+          >
+            <PenTool size={24} />
+            <span className="text-xs">Trening</span>
+          </Link>
+          <Link 
+            to="/test" 
+            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+              isActive('/test') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
+            }`}
+          >
+            <Trophy size={24} />
+            <span className="text-xs">Mecz</span>
+          </Link>
+        </div>
+      </nav>
+
+      {/* Desktop Footer */}
+      <footer className="p-4 text-center text-sm text-[var(--color-text-muted)] hidden md:block">
+        <p>Matematyka dla Kibica • Klasa 7</p>
+      </footer>
+    </div>
+  );
 };
