@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { Team } from '../data/curriculum';
@@ -28,6 +28,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
   };
 
+  // Debug: Log image paths
+  useEffect(() => {
+    console.log('Background images:', { bgBarcelona, bgArsenal, bgLegia });
+    console.log('Current team:', currentTeam);
+    console.log('Selected background:', getBackgroundImage());
+  }, [currentTeam]);
+
   return (
     <div className="min-h-screen flex flex-col w-full relative">
       {/* Background Image */}
@@ -36,54 +43,28 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         style={{ backgroundImage: `url(${getBackgroundImage()})` }}
       />
 
-      {/* Header */}
+      {/* Header - Single responsive version */}
       <header className="p-3 md:p-4 border-b border-white/10 glass-dark sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto">
-          {/* Mobile: Stacked layout */}
-          <div className="flex md:hidden flex-col gap-3">
-            <Link to="/" className="text-xl font-bold flex items-center gap-2 text-[var(--color-primary)] self-start">
-              <Trophy className="w-6 h-6" />
-              <span>Procenty</span>
-            </Link>
-            <div className="flex gap-2 w-full">
-              {teams.map(team => (
-                <button
-                  key={team}
-                  onClick={() => setTeam(team)}
-                  className={`flex-1 px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
-                    currentTeam === team 
-                      ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg scale-105' 
-                      : 'bg-white/10 border-white/30 text-white hover:border-white/60'
-                  }`}
-                >
-                  {team}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Desktop: Horizontal layout */}
-          <div className="hidden md:flex items-center justify-between">
-            <Link to="/" className="text-2xl font-bold flex items-center gap-2 text-[var(--color-primary)]">
-              <Trophy className="w-8 h-8" />
-              <span>Procenty</span>
-            </Link>
-            
-            <div className="flex gap-2">
-              {teams.map(team => (
-                <button
-                  key={team}
-                  onClick={() => setTeam(team)}
-                  className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
-                    currentTeam === team 
-                      ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg' 
-                      : 'bg-white/10 border-white/30 text-white hover:border-white/60'
-                  }`}
-                >
-                  {team}
-                </button>
-              ))}
-            </div>
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <Link to="/" className="text-xl md:text-2xl font-bold flex items-center gap-2 text-[var(--color-primary)]">
+            <Trophy className="w-6 h-6 md:w-8 md:h-8" />
+            <span>Procenty</span>
+          </Link>
+          
+          <div className="flex gap-2 w-full md:w-auto">
+            {teams.map(team => (
+              <button
+                key={team}
+                onClick={() => setTeam(team)}
+                className={`flex-1 md:flex-none px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
+                  currentTeam === team 
+                    ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg' 
+                    : 'bg-white/10 border-white/30 text-white hover:border-white/60'
+                }`}
+              >
+                {team}
+              </button>
+            ))}
           </div>
         </div>
       </header>
@@ -94,7 +75,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 md:hidden z-20 safe-area-inset-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 md:hidden z-20">
         <div className="flex justify-around items-center h-16 max-w-5xl mx-auto px-2">
           <Link 
             to="/" 
