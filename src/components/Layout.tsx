@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { Team } from '../data/curriculum';
 import { Trophy, BookOpen, PenTool, Home as HomeIcon } from 'lucide-react';
+import bgBarcelona from '../assets/bg-barcelona.png';
+import bgArsenal from '../assets/bg-arsenal.png';
+import bgLegia from '../assets/bg-legia.png';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentTeam, setTeam } = useTheme();
@@ -15,13 +18,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const getBackgroundImage = () => {
     switch (currentTeam) {
       case 'Barcelona':
-        return '/assets/bg-barcelona.png';
+        return bgBarcelona;
       case 'Arsenal':
-        return '/assets/bg-arsenal.png';
+        return bgArsenal;
       case 'Legia':
-        return '/assets/bg-legia.png';
+        return bgLegia;
       default:
-        return '/assets/bg-barcelona.png';
+        return bgBarcelona;
     }
   };
 
