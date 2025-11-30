@@ -37,27 +37,53 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       />
 
       {/* Header */}
-      <header className="p-4 border-b border-white/10 glass-dark sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link to="/" className="text-2xl font-bold flex items-center gap-2 text-[var(--color-primary)]">
-            <Trophy className="w-8 h-8" />
-            <span>Procenty</span>
-          </Link>
-          
-          <div className="flex gap-2">
-            {teams.map(team => (
-              <button
-                key={team}
-                onClick={() => setTeam(team)}
-                className={`px-3 py-1 text-xs rounded-full border transition-all ${
-                  currentTeam === team 
-                    ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg' 
-                    : 'bg-transparent border-white/20 hover:border-white/50'
-                }`}
-              >
-                {team}
-              </button>
-            ))}
+      <header className="p-3 md:p-4 border-b border-white/10 glass-dark sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto">
+          {/* Mobile: Stacked layout */}
+          <div className="flex md:hidden flex-col gap-3">
+            <Link to="/" className="text-xl font-bold flex items-center gap-2 text-[var(--color-primary)] self-start">
+              <Trophy className="w-6 h-6" />
+              <span>Procenty</span>
+            </Link>
+            <div className="flex gap-2 w-full">
+              {teams.map(team => (
+                <button
+                  key={team}
+                  onClick={() => setTeam(team)}
+                  className={`flex-1 px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
+                    currentTeam === team 
+                      ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg scale-105' 
+                      : 'bg-white/10 border-white/30 text-white hover:border-white/60'
+                  }`}
+                >
+                  {team}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: Horizontal layout */}
+          <div className="hidden md:flex items-center justify-between">
+            <Link to="/" className="text-2xl font-bold flex items-center gap-2 text-[var(--color-primary)]">
+              <Trophy className="w-8 h-8" />
+              <span>Procenty</span>
+            </Link>
+            
+            <div className="flex gap-2">
+              {teams.map(team => (
+                <button
+                  key={team}
+                  onClick={() => setTeam(team)}
+                  className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
+                    currentTeam === team 
+                      ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg' 
+                      : 'bg-white/10 border-white/30 text-white hover:border-white/60'
+                  }`}
+                >
+                  {team}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </header>
@@ -68,43 +94,43 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 md:hidden z-20">
-        <div className="flex justify-around items-center h-16 max-w-5xl mx-auto">
+      <nav className="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 md:hidden z-20 safe-area-inset-bottom">
+        <div className="flex justify-around items-center h-16 max-w-5xl mx-auto px-2">
           <Link 
             to="/" 
-            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+            className={`flex flex-col items-center gap-1 px-3 py-2 transition-colors min-w-0 ${
               isActive('/') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
             }`}
           >
-            <HomeIcon size={24} />
-            <span className="text-xs">Główna</span>
+            <HomeIcon size={22} />
+            <span className="text-xs font-medium">Główna</span>
           </Link>
           <Link 
             to="/tutorial" 
-            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+            className={`flex flex-col items-center gap-1 px-3 py-2 transition-colors min-w-0 ${
               isActive('/tutorial') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
             }`}
           >
-            <BookOpen size={24} />
-            <span className="text-xs">Nauka</span>
+            <BookOpen size={22} />
+            <span className="text-xs font-medium">Nauka</span>
           </Link>
           <Link 
             to="/practice" 
-            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+            className={`flex flex-col items-center gap-1 px-3 py-2 transition-colors min-w-0 ${
               isActive('/practice') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
             }`}
           >
-            <PenTool size={24} />
-            <span className="text-xs">Trening</span>
+            <PenTool size={22} />
+            <span className="text-xs font-medium">Trening</span>
           </Link>
           <Link 
             to="/test" 
-            className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
+            className={`flex flex-col items-center gap-1 px-3 py-2 transition-colors min-w-0 ${
               isActive('/test') ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'
             }`}
           >
-            <Trophy size={24} />
-            <span className="text-xs">Mecz</span>
+            <Trophy size={22} />
+            <span className="text-xs font-medium">Mecz</span>
           </Link>
         </div>
       </nav>
